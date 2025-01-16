@@ -11,7 +11,8 @@ export const useTimesStore = defineStore('times', {
     }),
     actions: {
         addSolve(solve: Solve) {
-            this.solves.push(solve)
+            console.log(solve)
+            this.solves.unshift(solve)
         }
     }
 })
