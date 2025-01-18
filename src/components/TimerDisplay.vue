@@ -1,9 +1,15 @@
 <template>
-	<section class="flex flex-col mx-auto gap-4 items-center cursor-pointer max-w-[90%] mb-6 md:mb-0 md:gap-1"> 
-		<div class="text-xl py-2 font-sans tracking-[0.1em] text-center md:text-2xl">
+	<section
+		class="flex flex-col mx-auto gap-4 items-center cursor-pointer max-w-[90%] mb-6 md:mb-0 md:gap-1"
+	>
+		<div
+			class="text-xl py-2 font-sans tracking-[0.1em] text-center md:text-2xl"
+		>
 			{{ scramble }}
 		</div>
-		<div class="text-8xl font-sans tracking-widest text-center w-64 md:text-9xl ">
+		<div
+			class="text-8xl font-sans tracking-widest text-center w-64 md:text-9xl"
+		>
 			<h1>
 				{{ formattedTime }}
 			</h1>
@@ -18,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from "vue";
+import { computed, onMounted, onUnmounted, ref, inject } from "vue";
 import { useTimesStore } from "../store/timesStore";
 
 const store = useTimesStore();
@@ -27,6 +33,7 @@ const currentTime = ref(0);
 const scramble = ref("");
 const isRunning = ref(false);
 let timer: number | null = null;
+
 
 const formattedTime = computed(() => {
 	const minutes = String(Math.floor(currentTime.value / 60000)).padStart(
@@ -47,17 +54,7 @@ const formattedTime = computed(() => {
 	}
 });
 
-//Iniciar el cronometro
-const startTimer = () => {
-	if (!isRunning.value) {
-		currentTime.value = 0;
-		isRunning.value = true;
-		const startTime = performance.now() - currentTime.value;
-		timer = window.setInterval(() => {
-			currentTime.value = Math.floor(performance.now() - startTime);
-		});
-	}
-};
+
 
 //Detener el cronometro
 const stopTimer = () => {
@@ -67,7 +64,9 @@ const stopTimer = () => {
 		timer = null;
 		store.addSolve({
 			scramble: scramble.value,
-			time: formattedTime.value,
+			time: parseFloat(formattedTime.value),
+			penalty: false,
+			isDnf: false,
 		});
 
 		scramble.value = scrambleGenerator();
@@ -78,17 +77,21 @@ const scrambleGenerator = (): string => {
 	const movements = ["F", "U", "D", "R", "L", "B"];
 	const modifiers = ["", "'", "2"];
 	return Array.from({ length: 20 })
-    .map(() => movements[Math.floor(Math.random() * movements.length)] + modifiers[Math.floor(Math.random() * modifiers.length)])
-    .join(" ");
+		.map(
+			() =>
+				movements[Math.floor(Math.random() * movements.length)] +
+				modifiers[Math.floor(Math.random() * modifiers.length)]
+		)
+		.join(" ");
 };
 
 const handleKeyPress = (event: KeyboardEvent) => {
 	if (isRunning.value) {
-		event.preventDefault()
+		event.preventDefault();
 		stopTimer();
 	} else {
 		if (event.code === "Space") {
-			event.preventDefault()
+			event.preventDefault();
 			startTimer();
 		}
 	}
@@ -103,7 +106,7 @@ const handleMousePress = () => {
 onMounted(() => {
 	window.addEventListener("keydown", handleKeyPress);
 	window.addEventListener("mousedown", handleMousePress);
-	scramble.value = scrambleGenerator()
+	scramble.value = scrambleGenerator();
 });
 
 onUnmounted(() => {
