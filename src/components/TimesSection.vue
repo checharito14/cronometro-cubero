@@ -33,7 +33,7 @@
 						<span class="font-bold mr-1 text-xs"
 							>{{ index + 1 }}.</span
 						>
-						{{ solve.isDnf ? "DNF" : solve.time }}
+						{{ solve.isDnf ? "DNF" : solve.time.toFixed(2) }}
 						<span v-if="solve.penalty" class="text-[8px]">+2</span>
 					</p>
 
@@ -42,7 +42,7 @@
 						class="tracking-widest text-center text-[10px] md:text-xs text-gris transition-opacity"
 						:class="{ 'opacity-0': scrambleVisible }"
 					>
-						{{ solve.scramble }} >
+						{{ solve.scramble }} 
 					</p>
 
 					<!-- Acciones -->

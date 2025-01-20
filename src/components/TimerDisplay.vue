@@ -11,95 +11,98 @@
 			class="text-8xl font-sans tracking-widest text-center w-64 md:text-9xl"
 		>
 			<h1>
-				{{ formattedTime }}
+				{{ displayTime }}
 			</h1>
 		</div>
-		<p class="text-sm py-2 text-gris md:text-base" v-if="!isRunning">
-			Presiona espacio para iniciar
-		</p>
-		<p class="text-sm py-2 text-gris md:text-base" v-else>
-			Presiona cualquier tecla para detener
+		<p class="text-sm py-2 text-gris md:text-base">
+			{{
+				isRunning
+					? "Presiona cualquier tecla para detener"
+					: "Presiona espacio para iniciar"
+			}}
 		</p>
 	</section>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, inject } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import { useTimesStore } from "../store/timesStore";
 
 const store = useTimesStore();
 
-const currentTime = ref(0);
-const scramble = ref("");
-const isRunning = ref(false);
-let timer: number | null = null;
+const isRunning = computed(() => store.isRunning);
 
-
-const formattedTime = computed(() => {
-	const minutes = String(Math.floor(currentTime.value / 60000)).padStart(
-		2,
-		"0"
-	);
-	const seconds = String(
-		Math.floor((currentTime.value % 60000) / 1000)
-	).padStart(2, "0");
-	const milliseconds = String(
-		Math.floor((currentTime.value % 1000) / 10)
-	).padStart(2, "0");
-
-	if (minutes !== "00") {
-		return `${minutes}:${seconds}.${milliseconds}`;
+const displayTime = computed(() => {
+	if (store.inspeccionMode) {
+		return `${store.currentInspeccionTime}`;
 	} else {
-		return `${seconds}.${milliseconds}`;
+		const minutes = String(Math.floor(store.currentTime / 60000)).padStart(
+			2,
+			"0"
+		);
+		const seconds = String(
+			Math.floor((store.currentTime % 60000) / 1000)
+		).padStart(2, "0");
+		const milliseconds = String(
+			Math.floor((store.currentTime % 1000) / 10)
+		).padStart(2, "0");
+
+		if (minutes !== "00") {
+			return `${minutes}:${seconds}.${milliseconds}`;
+		} else {
+			return `${seconds}.${milliseconds}`;
+		}
 	}
 });
 
-
-
-//Detener el cronometro
-const stopTimer = () => {
-	if (isRunning.value) {
-		isRunning.value = false;
-		clearInterval(timer as number);
-		timer = null;
-		store.addSolve({
-			scramble: scramble.value,
-			time: parseFloat(formattedTime.value),
-			penalty: false,
-			isDnf: false,
-		});
-
-		scramble.value = scrambleGenerator();
-	}
-};
+const scramble = ref("");
 
 const scrambleGenerator = (): string => {
 	const movements = ["F", "U", "D", "R", "L", "B"];
 	const modifiers = ["", "'", "2"];
+	let previousMove = ""; // Para rastrear el último movimiento generado
+
 	return Array.from({ length: 20 })
-		.map(
-			() =>
-				movements[Math.floor(Math.random() * movements.length)] +
-				modifiers[Math.floor(Math.random() * modifiers.length)]
-		)
+		.map(() => {
+			let newMove;
+			do {
+				// Genera un nuevo movimiento aleatorio
+				newMove =
+					movements[Math.floor(Math.random() * movements.length)] +
+					modifiers[Math.floor(Math.random() * modifiers.length)];
+			} while (newMove[0] === previousMove[0]); // Evita movimientos consecutivos iguales
+
+			previousMove = newMove[0]; // Actualiza el último movimiento
+			return newMove;
+		})
 		.join(" ");
 };
 
+
 const handleKeyPress = (event: KeyboardEvent) => {
-	if (isRunning.value) {
+	if (store.isRunning) {
 		event.preventDefault();
-		stopTimer();
-	} else {
-		if (event.code === "Space") {
-			event.preventDefault();
-			startTimer();
+		store.stopTimer();
+		store.addSolve({
+			scramble: scramble.value,
+			time: parseFloat((store.currentTime / 1000).toFixed(2)),
+			isDnf: false,
+			penalty: false,
+		});
+		scramble.value = scrambleGenerator() 
+	} else if (event.code === "Space") {
+		event.preventDefault();
+		if (store.inspeccionMode) {
+			store.startInspeccion();
+		} else {
+			store.startTimer();
 		}
 	}
 };
 
 const handleMousePress = () => {
-	if (isRunning.value) {
-		stopTimer();
+	if (store.isRunning) {
+		store.stopTimer();
 	}
 };
 

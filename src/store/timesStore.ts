@@ -18,8 +18,26 @@ export const useTimesStore = defineStore("times", {
 	}),
 	actions: {
 		addSolve(solve: Solve) {
-			console.log(solve);
 			this.solves.unshift(solve);
+		},
+
+		startInspeccion() {
+			// this.inspeccionMode = true;
+			this.currentInspeccionTime = this.inspeccionTime;
+			const interval = setInterval(() => {
+				if (this.currentInspeccionTime > 1) {
+					this.currentInspeccionTime -= 1;
+				} else {
+					clearInterval(interval);
+					// this.inspeccionMode = false;
+                    this.currentInspeccionTime = 0;
+					this.startTimer();
+				}
+			}, 1000);
+		},
+
+		resetInspectionTime() {
+			this.currentInspeccionTime = this.inspeccionTime;
 		},
 
 		startTimer() {
@@ -27,11 +45,21 @@ export const useTimesStore = defineStore("times", {
 				this.isRunning = true;
 				this.currentTime = 0;
 				const startTime = performance.now();
-				this.timer = window.setInterval(() => {
-					this.currentTime = Math.floor(
-						performance.now() - startTime
-					);
-				});
+				const interval = setInterval(() => {
+					if (this.isRunning) {
+						this.currentTime = Math.floor(
+							performance.now() - startTime
+						);
+					} else {
+						clearInterval(interval);
+					}
+				}, 10);
+			}
+		},
+
+		stopTimer() {
+			if (this.isRunning) {
+				this.isRunning = false;
 			}
 		},
 	},
