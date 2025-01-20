@@ -2,7 +2,7 @@
 	<base-card>
 		<div class="flex justify-between items-center w-[95%] relative">
 			<p class="text-vulcan-300 ml-4 text-xs">
-				Total: {{ solves.length }}/{{ solves.length }}
+				Total: {{ solveLength}}/{{ solveLength }}
 			</p>
 			<h3 class="text-center text-base md:text-lg">Tiempos</h3>
 			<!-- Icono ojo -->
@@ -74,7 +74,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { useTimesStore } from "../store/timesStore";
 import { Trash, EyeClosed, Eye } from "lucide-vue-next";
 
@@ -106,4 +106,8 @@ const addDNF = (index: number) => {
 const deleteSolve = (index: number) => {
 	solves.splice(index, 1);
 };
+
+const solveLength = computed(() => {
+	return store.solves.length
+})
 </script>

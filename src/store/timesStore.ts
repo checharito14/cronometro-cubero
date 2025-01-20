@@ -19,6 +19,7 @@ export const useTimesStore = defineStore("times", {
 	actions: {
 		addSolve(solve: Solve) {
 			this.solves.unshift(solve);
+			console.log(this.solves)
 		},
 
 		startInspeccion() {
@@ -62,5 +63,9 @@ export const useTimesStore = defineStore("times", {
 				this.isRunning = false;
 			}
 		},
+
+		clearSolves() {
+			this.solves = []
+		}
 	},
 });
