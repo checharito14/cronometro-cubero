@@ -4,19 +4,19 @@
 		<div class="grid gap-3 p-6 text-xs md:text-sm">
 			<div class="grid grid-cols-2 gap-5 justify-between">
 				<div
-					class="flex justify-around border-b border-vulcan-800 py-2"
+					class="flex justify-around border-b border-vulcan-400 dark:border-vulcan-800 py-2"
 				>
 					<p>Mejor:</p>
 					<p>{{ bestTime }}</p>
 				</div>
 				<div
-					class="flex justify-around border-b border-vulcan-800 py-2"
+					class="flex justify-around border-b border-vulcan-400 dark:border-vulcan-800 py-2"
 				>
-					<p>Peor:</p>
+					<p >Peor:</p>
 					<p>{{ worstTime }}</p>
 				</div>
 			</div>
-			<div class="flex justify-around border-b border-vulcan-800 py-2">
+			<div class="flex justify-around border-b border-vulcan-400 dark:border-vulcan-800 py-2">
 				<p>Promedio:</p>
 				<p>{{ promedioTime }}</p>
 			</div>
@@ -25,19 +25,19 @@
 				<thead>
 					<tr>
 						<th class="py-1"></th>
-						<th class="py-1 text-[10px] text-vulcan-400">Actual</th>
-						<th class="py-1 text-[10px] text-vulcan-400">Mejor</th>
+						<th class="py-1 text-[10px] text-vulcan-800 dark:text-vulcan-400">Actual</th>
+						<th class="py-1 text-[10px] text-vulcan-800 dark:text-vulcan-400">Mejor</th>
 					</tr>
 				</thead>
 				<tbody>
 					<tr v-for="(row, index) in averages" :key="index">
-						<td class="py-2 border-b border-vulcan-800 text-center">
+						<td class="py-2 border-b border-vulcan-400 dark:border-vulcan-800  text-center">
 							{{ row.label }}
 						</td>
-						<td class="py-1 border-b border-vulcan-800 text-center">
+						<td class="py-1 border-b border-vulcan-400 dark:border-vulcan-800  text-center">
 							{{ row.actual }}
 						</td>
-						<td class="py-1 border-b border-vulcan-800 text-center">
+						<td class="py-1 border-b border-vulcan-400 dark:border-vulcan-800  text-center">
 							{{ row.best }}
 						</td>
 					</tr>

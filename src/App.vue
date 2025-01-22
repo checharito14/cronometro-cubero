@@ -8,7 +8,7 @@ import TimesSection from "./components/TimesSection.vue";
 </script>
 
 <template>
-	<div class="text-white">
+	<div class="text-primary dark:text-white">
 		<TheHeader />
 		<TimerDisplay />
 		<div

@@ -1,6 +1,8 @@
 <template>
-	<div class="hover:cursor-pointer bg-secondary rounded-full p-2">
-		<Bolt :size="32" @click="openModal" aria-label="Abrir configuración"/>
+	<div
+		class="hover:cursor-pointer bg-vulcan-50 dark:bg-secondary rounded-full p-2"
+	>
+		<Bolt :size="32" @click="openModal" aria-label="Abrir configuración" />
 	</div>
 
 	<!-- Dialog -->
@@ -32,11 +34,11 @@
 						leave-to="opacity-0 scale-95"
 					>
 						<DialogPanel
-							class="w-full max-w-md transform overflow-hidden rounded-2xl bg-primary p-6 text-left align-middle shadow-xl transition-all"
+							class="w-full max-w-md transform overflow-hidden rounded-2xl bg-vulcan-50 dark:bg-secondary p-6 text-left align-middle shadow-xl transition-all"
 						>
 							<DialogTitle
 								as="h3"
-								class="text-lg font-medium leading-6 text-vulcan-50 p-5 border-b mb-5"
+								class="text-lg font-medium leading-6 text-primary dark:text-vulcan-50 p-5 border-vulcan-400 border-b dark:border-inherit mb-5"
 							>
 								Configuración
 							</DialogTitle>
@@ -45,24 +47,24 @@
 								<!-- Switch de mantener pulsado -->
 								<SwitchGroup>
 									<div
-										class="flex items-center justify-between p-4 text-vulcan-100 border-b border-vulcan-800 text-sm"
+										class="flex items-center justify-between p-4 text-vulcan-950 dark:text-vulcan-100 border-b border-vulcan-400 dark:border-vulcan-800 text-sm"
 									>
 										<SwitchLabel
 											>Mantener pulsado para
 											iniciar</SwitchLabel
 										>
 										<Switch
-											v-model="enabled"
+											v-model="store.needToHold"
 											:class="
-												enabled
+												store.needToHold
 													? 'bg-blue-600'
-													: 'bg-gray-500'
+													: 'bg-[#dcdde1]'
 											"
 											class="relative inline-flex h-5 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
 										>
 											<span
 												:class="
-													enabled
+													store.needToHold
 														? 'translate-x-6'
 														: 'translate-x-1'
 												"
@@ -74,27 +76,27 @@
 								<!-- Switch del tema -->
 								<SwitchGroup>
 									<div
-										class="flex items-center justify-between p-5 text-vulcan-100 border-b border-vulcan-800 text-sm"
+										class="flex items-center justify-between p-5 text-vulcan-950 dark:text-vulcan-100 border-b dark:border-vulcan-800 border-vulcan-400 text-sm"
 									>
 										<SwitchLabel>Modo: </SwitchLabel>
 
 										<div class="flex items-center">
 											<SwitchLabel
-												class="text-xs text-vulcan-400"
+												class="text-xs text-vulcan-800 dark:text-vulcan-400"
 												>Claro</SwitchLabel
 											>
 											<Switch
-												v-model="darkMode"
+												v-model="store.darkMode"
 												:class="
-													darkMode
+													store.darkMode
 														? 'bg-blue-600'
-														: 'bg-gray-500'
+														: 'bg-[#dcdde1]'
 												"
 												class="relative inline-flex h-5 w-11 mx-5 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
 											>
 												<span
 													:class="
-														darkMode
+														store.darkMode
 															? 'translate-x-6'
 															: 'translate-x-1'
 													"
@@ -102,7 +104,7 @@
 												/>
 											</Switch>
 											<SwitchLabel
-												class="text-xs text-vulcan-400"
+												class="text-xs text-vulcan-800 dark:text-vulcan-400"
 												>Oscuro</SwitchLabel
 											>
 										</div>
@@ -110,7 +112,7 @@
 								</SwitchGroup>
 
 								<div
-									class="flex items-center justify-between p-4 text-vulcan-100 border-b border-vulcan-800 text-sm transition-all"
+									class="flex items-center justify-between p-4 text-vulcan-950 dark:text-vulcan-100 border-b border-vulcan-400 dark:border-vulcan-800 text-sm transition-all"
 								>
 									<p>
 										{{
@@ -121,7 +123,7 @@
 									</p>
 									<div>
 										<button
-											class="text-red-600 bg-red-950 py-1 px-2 rounded-md"
+											class="text-red-950 dark:text-red-600 bg-red-600 dark:bg-red-900 py-1 px-2 rounded-md"
 											@click="handleConfirm"
 											v-if="!confirmDelete"
 										>
@@ -130,7 +132,7 @@
 
 										<template v-else>
 											<button
-												class="text-vulcan-100 mr-6 py-1 px-2"
+												class= "text-secondary dark:text-vulcan-100 mr-6 py-1 px-2"
 												@click="deleteSolves"
 											>
 												Si
@@ -148,7 +150,7 @@
 								<a
 									href="https://www.freepik.com/icon/game_11066924#fromView=author&page=1&position=10&uuid=1b7951b8-2455-46b0-b5b2-e1c7598a93c1"
 									target="_blank"
-									class="text-vulcan-400 absolute bottom-0 right-0 text-sm"
+									class="text-vulcan-800 dark:text-vulcan-400 absolute bottom-0 right-0 text-sm"
 									>Icon by rcherem</a
 								>
 							</div>
@@ -162,7 +164,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watchEffect } from "vue";
 import { Switch, SwitchGroup, SwitchLabel } from "@headlessui/vue";
 import { Bolt } from "lucide-vue-next";
 import { useTimesStore } from "../../store/timesStore";
@@ -178,9 +180,6 @@ import {
 const store = useTimesStore();
 
 const isOpen = ref(false);
-const enabled = ref(false);
-const darkMode = ref(false);
-
 const confirmDelete = ref(false);
 
 const handleConfirm = () => {
@@ -188,13 +187,23 @@ const handleConfirm = () => {
 };
 
 const deleteSolves = () => {
-	if(!store.solves.length) {
-		confirmDelete.value = false
-		return
+	if (!store.solves.length) {
+		confirmDelete.value = false;
+		return;
 	}
 	store.clearSolves();
 	confirmDelete.value = false;
 };
+
+watchEffect(() => {
+  const html = document.documentElement;
+  if (store.darkMode) {
+    html.classList.add('dark');
+  } else {
+    html.classList.remove('dark');
+  }
+});
+
 
 function closeModal() {
 	confirmDelete.value = false;

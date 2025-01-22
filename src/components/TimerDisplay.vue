@@ -8,13 +8,32 @@
 			{{ scramble }}
 		</div>
 		<div
-			class="text-8xl font-sans tracking-widest text-center w-64 md:text-9xl"
+			class="text-8xl flex justify-around items-center font-sans tracking-widest text-center w-[80%] md:text-9xl"
 		>
-			<h1>
-				{{ displayTime }}
-			</h1>
+			<img
+				src="../../src/assets/manos.svg"
+				alt="manos"
+				class="w-32 h-32"
+				n
+			/>
+			<div
+				class="w-64"
+				:class="{
+					'text-red-500': holdState === 'red',
+					'text-green-500': holdState === 'green',
+				}"
+			>
+				<h1>
+					{{ displayTime }}
+				</h1>
+			</div>
+			<img
+				src="../../src/assets/manos.svg"
+				alt="manos"
+				class="w-32 h-32"
+			/>
 		</div>
-		<p class="text-sm py-2 text-gris md:text-base">
+		<p class="text-sm py-2 text-gray-700 dark:text-gris md:text-base">
 			{{
 				isRunning
 					? "Presiona cualquier tecla para detener"
@@ -31,6 +50,7 @@ import { useTimesStore } from "../store/timesStore";
 const store = useTimesStore();
 
 const isRunning = computed(() => store.isRunning);
+const holdState = computed(() => store.holdState);
 
 const displayTime = computed(() => {
 	if (store.inspeccionMode) {
@@ -78,6 +98,18 @@ const scrambleGenerator = (): string => {
 		.join(" ");
 };
 
+const handleKeyUp = (event: KeyboardEvent) => {
+	if (event.code === "Space") {
+		event.preventDefault();
+		if (store.needToHold) {
+			if (store.isRunning) {
+				store.stopTimer();
+			} else {
+				store.releasePress();
+			}
+		}
+	}
+};
 
 const handleKeyPress = (event: KeyboardEvent) => {
 	if (store.isRunning) {
@@ -89,11 +121,13 @@ const handleKeyPress = (event: KeyboardEvent) => {
 			isDnf: false,
 			penalty: false,
 		});
-		scramble.value = scrambleGenerator() 
+		scramble.value = scrambleGenerator();
 	} else if (event.code === "Space") {
 		event.preventDefault();
 		if (store.inspeccionMode) {
 			store.startInspeccion();
+		} else if (store.needToHold) {
+			store.startPress();
 		} else {
 			store.startTimer();
 		}
@@ -108,12 +142,14 @@ const handleMousePress = () => {
 
 onMounted(() => {
 	window.addEventListener("keydown", handleKeyPress);
+	window.addEventListener("keyup", handleKeyUp);
 	window.addEventListener("mousedown", handleMousePress);
 	scramble.value = scrambleGenerator();
 });
 
 onUnmounted(() => {
 	window.removeEventListener("keydown", handleKeyPress);
+	window.removeEventListener("keyup", handleKeyUp);
 	window.removeEventListener("mousedown", handleMousePress);
 });
 </script>

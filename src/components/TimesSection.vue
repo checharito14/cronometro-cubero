@@ -1,7 +1,7 @@
 <template>
 	<base-card>
 		<div class="flex justify-between items-center w-[95%] relative">
-			<p class="text-vulcan-300 ml-4 text-xs">
+			<p class="text-vulcan-700 dark:text-vulcan-300 ml-4 text-xs">
 				Total: {{ solveLength}}/{{ solveLength }}
 			</p>
 			<h3 class="text-center text-base md:text-lg">Tiempos</h3>
@@ -11,7 +11,7 @@
 					<Eye v-if="!scrambleVisible" :size="20" />
 					<EyeClosed v-else :size="20" />
 					<div
-						class="absolute left-1/2 transform -translate-x-1/2 top-full mb-2 opacity-0 group-hover:opacity-100 group-hover:z-10 transition-opacity duration-200 delay-300 text-xs bg-vulcan-600 text-vulcan-100 p-2 rounded text-center"
+						class="absolute left-1/2 transform -translate-x-1/2 top-full mb-2 opacity-0 group-hover:opacity-100 group-hover:z-10 transition-opacity duration-200 delay-300 text-xs bg-vulcan-200 dark:bg-vulcan-600 text-primary dark:text-vulcan-100 p-2 rounded text-center"
 					>
 						Ver scramble
 					</div>
@@ -26,7 +26,7 @@
 				:key="index"
 			>
 				<div
-					class="grid grid-cols-[1fr_2fr_1fr] justify-between items-center w-full border-b border-vulcan-800 py-1"
+					class="grid grid-cols-[1fr_2fr_1fr] justify-between items-center w-full border-b border-vulcan-400 dark:border-vulcan-800 py-1"
 				>
 					<!-- Tiempo -->
 					<p class="md:text-sm">
@@ -39,7 +39,7 @@
 
 					<!-- Scramble -->
 					<p
-						class="tracking-widest text-center text-[10px] md:text-xs text-gris transition-opacity"
+						class="tracking-widest text-center text-[10px] md:text-xs text-gray-700 dark:text-gris transition-opacity"
 						:class="{ 'opacity-0': scrambleVisible }"
 					>
 						{{ solve.scramble }} 
