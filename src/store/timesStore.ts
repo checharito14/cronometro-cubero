@@ -17,9 +17,12 @@ export const useTimesStore = defineStore("times", {
 		currentInspeccionTime: 0,
 
 		needToHold: true,
-		pressStartTime: 0,
-		currentHoldTime: 0,
-		holdState: '',
+		//Hold
+		isHolding: false,
+		holdStartTime: null as number | null,
+		isReady: false,
+		holdState: "",
+
 		darkMode: true,
 	}),
 	actions: {
@@ -44,33 +47,35 @@ export const useTimesStore = defineStore("times", {
 			}, 1000);
 		},
 
-		startPress() {
-			if (this.isRunning || this.pressStartTime > 0) return;
-		  
-			this.pressStartTime = Date.now();
-			this.currentHoldTime = 0;
-			this.holdState = '';
-		  
-			const interval = setInterval(() => {
-			  this.currentHoldTime = Math.floor((Date.now() - this.pressStartTime) / 1000);
-		  
-			  if (this.currentHoldTime >= 2) {
-				this.holdState = 'green';
-				clearInterval(interval); // Detenemos el intervalo al alcanzar el estado "verde"
-			  } else if (this.currentHoldTime < 1) {
-				this.holdState = 'red';
-			  }
-			}, 100);
-		  },
+		startHold() {
+			this.isHolding = true;
+			this.holdStartTime = Date.now();
 
-		  releasePress() {
-			if (this.currentHoldTime >= 2) {
-			  this.startTimer();
+			const progressInterval = setInterval(() => {
+				if (!this.holdStartTime || !this.isHolding) {
+					clearInterval(progressInterval);
+					return;
+				}
+
+				const elapsed = Date.now() - this.holdStartTime;
+
+				if (elapsed >= 500) {
+					this.isReady = true;
+					this.isHolding = false;
+					clearInterval(progressInterval);
+				}
+				console.log(elapsed);
+			}, 100);
+
+		},
+
+		resetHold() {
+			if (!this.isReady) {
+				this.holdStartTime = null;
+				this.isHolding = false;
 			}
-			this.pressStartTime = 0;
-			this.currentHoldTime = 0;
-			this.holdState = '';
-		  },
+			this.isReady = false;
+		},
 
 		resetInspectionTime() {
 			this.currentInspeccionTime = this.inspeccionTime;
@@ -94,7 +99,6 @@ export const useTimesStore = defineStore("times", {
 		},
 
 		stopTimer() {
-			
 			if (this.isRunning) {
 				this.isRunning = false;
 			}

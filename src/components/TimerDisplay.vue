@@ -21,6 +21,7 @@
 				:class="{
 					'text-red-500': holdState === 'red',
 					'text-green-500': holdState === 'green',
+					'text-white': !holdState,
 				}"
 			>
 				<h1>
@@ -50,7 +51,11 @@ import { useTimesStore } from "../store/timesStore";
 const store = useTimesStore();
 
 const isRunning = computed(() => store.isRunning);
-const holdState = computed(() => store.holdState);
+const holdState = computed(() => {
+	if (store.isReady) return "green";
+	if (store.isHolding) return "red";
+	return "";
+});
 
 const displayTime = computed(() => {
 	if (store.inspeccionMode) {
@@ -75,6 +80,56 @@ const displayTime = computed(() => {
 	}
 });
 
+const handleKeyUp = (event: KeyboardEvent) => {
+	if (event.code === "Space") {
+		event.preventDefault();  
+		if (store.isReady) {
+			startTimer();
+		}
+		store.resetHold();
+	}
+};
+
+const handleKeyDown = (event: KeyboardEvent) => {
+	if(event.code === 'Space') {
+		event.preventDefault()
+	}
+	if (store.isRunning) {
+		event.preventDefault();
+		store.stopTimer();
+		store.addSolve({
+			scramble: scramble.value,
+			time: parseFloat((store.currentTime / 1000).toFixed(2)),
+			isDnf: false,
+			penalty: false,
+		});
+		scramble.value = scrambleGenerator();
+		return;
+	}
+	if (event.code === "Space" && !store.isRunning && !store.isHolding) {
+		event.preventDefault();
+		if (store.inspeccionMode) {
+			store.startInspeccion();
+		} else if (store.needToHold) {
+			store.startHold();
+		} else {
+			store.startTimer();
+		}
+	}
+};
+
+const handleMousePress = () => {
+	if (store.isRunning) {
+		store.stopTimer();
+	}
+};
+
+const startTimer = () => {
+	store.startTimer();
+	store.resetHold();
+};
+
+//Scramble Generation
 const scramble = ref("");
 
 const scrambleGenerator = (): string => {
@@ -98,57 +153,15 @@ const scrambleGenerator = (): string => {
 		.join(" ");
 };
 
-const handleKeyUp = (event: KeyboardEvent) => {
-	if (event.code === "Space") {
-		event.preventDefault();
-		if (store.needToHold) {
-			if (store.isRunning) {
-				store.stopTimer();
-			} else {
-				store.releasePress();
-			}
-		}
-	}
-};
-
-const handleKeyPress = (event: KeyboardEvent) => {
-	if (store.isRunning) {
-		event.preventDefault();
-		store.stopTimer();
-		store.addSolve({
-			scramble: scramble.value,
-			time: parseFloat((store.currentTime / 1000).toFixed(2)),
-			isDnf: false,
-			penalty: false,
-		});
-		scramble.value = scrambleGenerator();
-	} else if (event.code === "Space") {
-		event.preventDefault();
-		if (store.inspeccionMode) {
-			store.startInspeccion();
-		} else if (store.needToHold) {
-			store.startPress();
-		} else {
-			store.startTimer();
-		}
-	}
-};
-
-const handleMousePress = () => {
-	if (store.isRunning) {
-		store.stopTimer();
-	}
-};
-
 onMounted(() => {
-	window.addEventListener("keydown", handleKeyPress);
+	window.addEventListener("keydown", handleKeyDown);
 	window.addEventListener("keyup", handleKeyUp);
 	window.addEventListener("mousedown", handleMousePress);
 	scramble.value = scrambleGenerator();
 });
 
 onUnmounted(() => {
-	window.removeEventListener("keydown", handleKeyPress);
+	window.removeEventListener("keydown", handleKeyDown);
 	window.removeEventListener("keyup", handleKeyUp);
 	window.removeEventListener("mousedown", handleMousePress);
 });
