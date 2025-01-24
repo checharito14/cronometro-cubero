@@ -12,11 +12,13 @@
 				<div
 					class="flex justify-around border-b border-vulcan-400 dark:border-vulcan-800 py-2"
 				>
-					<p >Peor:</p>
+					<p>Peor:</p>
 					<p>{{ worstTime }}</p>
 				</div>
 			</div>
-			<div class="flex justify-around border-b border-vulcan-400 dark:border-vulcan-800 py-2">
+			<div
+				class="flex justify-around border-b border-vulcan-400 dark:border-vulcan-800 py-2"
+			>
 				<p>Promedio:</p>
 				<p>{{ promedioTime }}</p>
 			</div>
@@ -25,26 +27,39 @@
 				<thead>
 					<tr>
 						<th class="py-1"></th>
-						<th class="py-1 text-[10px] text-vulcan-800 dark:text-vulcan-400">Actual</th>
-						<th class="py-1 text-[10px] text-vulcan-800 dark:text-vulcan-400">Mejor</th>
+						<th
+							class="py-1 text-[10px] text-vulcan-800 dark:text-vulcan-400"
+						>
+							Actual
+						</th>
+						<th
+							class="py-1 text-[10px] text-vulcan-800 dark:text-vulcan-400"
+						>
+							Mejor
+						</th>
 					</tr>
 				</thead>
 				<tbody>
 					<tr v-for="(row, index) in averages" :key="index">
-						<td class="py-2 border-b border-vulcan-400 dark:border-vulcan-800  text-center">
+						<td
+							class="py-2 border-b border-vulcan-400 dark:border-vulcan-800 text-center"
+						>
 							{{ row.label }}
 						</td>
-						<td class="py-1 border-b border-vulcan-400 dark:border-vulcan-800  text-center">
+						<td
+							class="py-1 border-b border-vulcan-400 dark:border-vulcan-800 text-center"
+						>
 							{{ row.actual }}
 						</td>
-						<td class="py-1 border-b border-vulcan-400 dark:border-vulcan-800  text-center">
+						<td
+							class="py-1 border-b border-vulcan-400 dark:border-vulcan-800 text-center"
+						>
 							{{ row.best }}
 						</td>
 					</tr>
 				</tbody>
 			</table>
 		</div>
-      
 	</base-card>
 </template>
 
@@ -53,8 +68,8 @@ import { computed, ref } from "vue";
 import { useTimesStore } from "../store/timesStore";
 
 const store = useTimesStore();
-const solves = store.solves;
-
+const solves = computed(() => store.getSolves);
+console.log(solves)
 const averages = computed(() => [
 	{
 		label: "Avg3",
@@ -73,47 +88,74 @@ const averages = computed(() => [
 	},
 ]);
 
-const bestAvg = ref<{[key:number]: number | null}>({
-  3: null as number | null,
-  5: null as number | null,
-  12: null as number | null,
+const bestAvg = ref<{ [key: number]: number | null }>({
+	3: null as number | null,
+	5: null as number | null,
+	12: null as number | null,
 });
 
 const bestTime = computed(() => {
-	if (solves.length === 0) return "00.00";
+	if (solves.value.length === 0) return "-";
+	const validTimes = solves.value
+		.filter((solve) => !solve.isDnf)
+		.map((solve) => solve.time);
+	if (validTimes.length === 0) return "-";
 
-	const best = Math.min(...solves.map((solve) => solve.time));
-	// const bestTime = solves.find((solve) => solve.time === best)
+	const best = Math.min(...validTimes);
 	return best.toFixed(2);
 });
 
 const worstTime = computed(() => {
-	if (solves.length === 0) return "00.00";
+	if (solves.value.length === 0) return "-";
+	const validTimes = solves.value
+		.filter((solve) => !solve.isDnf)
+		.map((solve) => solve.time);
+	if (validTimes.length === 0) return "-";
 
-	const worst = Math.max(...solves.map((solve) => solve.time));
+	const worst = Math.max(...validTimes);
 
 	return worst.toFixed(2);
 });
 
 const promedioTime = computed(() => {
-	if (solves.length === 0) return "-";
+	if (solves.value.length === 0) return "-";
+	const validTimes = solves.value
+		.filter((solve) => !solve.isDnf)
+		.map((solve) => solve.time);
+	if (validTimes.length === 0) return "-";
 
-	const total = solves.reduce((sum, solve) => sum + solve.time, 0);
-	const avg = total / solves.length;
+	const total = validTimes.reduce((sum, time) => sum + time, 0);
+	const avg = total / solves.value.length;
 
 	return avg.toFixed(2);
 });
 
 const calculateAvg = (count: number): string => {
-	if (solves.length < count) return "-";
+	if (solves.value.length < count) return "-";
 
-	const lastThree = solves.slice(0, count).map((solve) => solve.time);
-	const total = lastThree.reduce((sum, time) => sum + time, 0);
-	const currentAvg = total / count;
+	const invalidTimes = solves.value.slice(0, count).filter((solve) => solve.isDnf);
 
-	if (bestAvg.value[count] === null || currentAvg < bestAvg.value[count]!) {
-		bestAvg.value[count] = currentAvg;
+	if (count === 3) {
+		if (invalidTimes.length > 0) return "DNF";
+	} else if (count === 5) {
+		if (invalidTimes.length > 1) return "DNF";
+	} else if (count === 12) {
+		if (invalidTimes.length > 2) return "DNF";
 	}
+
+	const lastSolves = solves.value.slice(0, count);
+
+	const dnfCount = lastSolves.filter((solve) => solve.isDnf).length;
+	if (dnfCount > count - 1) return "DNF";
+
+	const times = lastSolves.map((solve) => (solve.time));
+
+	times.sort((a, b) => a - b);
+
+	const timeToAvg = count > 3 ? times.slice(1, count - 1) : times;
+
+	const total = timeToAvg.reduce((sum, time) => sum + time, 0);
+	const currentAvg = total / timeToAvg.length;
 	return currentAvg.toFixed(2);
 };
 </script>

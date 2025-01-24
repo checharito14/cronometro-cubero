@@ -14,14 +14,12 @@
 				src="../../src/assets/manos.svg"
 				alt="manos"
 				class="w-32 h-32"
-				n
 			/>
 			<div
 				class="w-64"
 				:class="{
 					'text-red-500': holdState === 'red',
 					'text-green-500': holdState === 'green',
-					'text-white': !holdState,
 				}"
 			>
 				<h1>
@@ -50,6 +48,7 @@ import { useTimesStore } from "../store/timesStore";
 
 const store = useTimesStore();
 
+//Computed --------------------------------------------------
 const isRunning = computed(() => store.isRunning);
 const holdState = computed(() => {
 	if (store.isReady) return "green";
@@ -58,7 +57,7 @@ const holdState = computed(() => {
 });
 
 const displayTime = computed(() => {
-	if (store.inspeccionMode) {
+	if (store.currentInspeccionTime) {
 		return `${store.currentInspeccionTime}`;
 	} else {
 		const minutes = String(Math.floor(store.currentTime / 60000)).padStart(
@@ -80,6 +79,13 @@ const displayTime = computed(() => {
 	}
 });
 
+//Metodos --------------------------------------------------
+const startTimer = () => {
+	store.startTimer();
+	store.resetHold();
+};
+
+//Manejo de eventos --------------------------------------------------
 const handleKeyUp = (event: KeyboardEvent) => {
 	if (event.code === "Space") {
 		event.preventDefault();  
@@ -94,6 +100,8 @@ const handleKeyDown = (event: KeyboardEvent) => {
 	if(event.code === 'Space') {
 		event.preventDefault()
 	}
+	if (store.isPaused) return;
+	//Si el cronometro esta corriendo se detiene
 	if (store.isRunning) {
 		event.preventDefault();
 		store.stopTimer();
@@ -106,6 +114,11 @@ const handleKeyDown = (event: KeyboardEvent) => {
 		scramble.value = scrambleGenerator();
 		return;
 	}
+	if (store.inspeccionMode && store.currentInspeccionTime !== null) {
+			store.stopInspeccion();
+			return;
+		}
+	
 	if (event.code === "Space" && !store.isRunning && !store.isHolding) {
 		event.preventDefault();
 		if (store.inspeccionMode) {
@@ -124,12 +137,7 @@ const handleMousePress = () => {
 	}
 };
 
-const startTimer = () => {
-	store.startTimer();
-	store.resetHold();
-};
-
-//Scramble Generation
+//Scramble Generation --------------------------------------------------
 const scramble = ref("");
 
 const scrambleGenerator = (): string => {
@@ -153,6 +161,8 @@ const scrambleGenerator = (): string => {
 		.join(" ");
 };
 
+
+//Lyfecicle hooks ---------------------------------------------------
 onMounted(() => {
 	window.addEventListener("keydown", handleKeyDown);
 	window.addEventListener("keyup", handleKeyUp);

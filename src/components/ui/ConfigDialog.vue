@@ -87,6 +87,9 @@
 											>
 											<Switch
 												v-model="store.darkMode"
+												@update:modelValue="
+													store.saveDarkMode
+												"
 												:class="
 													store.darkMode
 														? 'bg-blue-600'
@@ -132,7 +135,7 @@
 
 										<template v-else>
 											<button
-												class= "text-secondary dark:text-vulcan-100 mr-6 py-1 px-2"
+												class="text-secondary dark:text-vulcan-100 mr-6 py-1 px-2"
 												@click="deleteSolves"
 											>
 												Si
@@ -196,14 +199,13 @@ const deleteSolves = () => {
 };
 
 watchEffect(() => {
-  const html = document.documentElement;
-  if (store.darkMode) {
-    html.classList.add('dark');
-  } else {
-    html.classList.remove('dark');
-  }
+	const html = document.documentElement;
+	if (store.darkMode) {
+		html.classList.add("dark");
+	} else {
+		html.classList.remove("dark");
+	}
 });
-
 
 function closeModal() {
 	confirmDelete.value = false;

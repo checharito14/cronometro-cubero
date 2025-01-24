@@ -64,7 +64,7 @@
 						<Trash
 							class="cursor-pointer"
 							:size="20"
-							@click="deleteSolve(index)"
+							@click="store.deleteSolve(index)"
 						/>
 					</div>
 				</div>
@@ -103,9 +103,7 @@ const addDNF = (index: number) => {
 	solve.isDnf = !solve.isDnf;
 };
 
-const deleteSolve = (index: number) => {
-	solves.splice(index, 1);
-};
+
 
 const solveLength = computed(() => {
 	return store.solves.length

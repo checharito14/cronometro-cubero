@@ -5,6 +5,15 @@ import OptionsSection from "./components/OptionsSection.vue";
 import StatsSection from "./components/StatsSection.vue";
 import TimerDisplay from "./components/TimerDisplay.vue";
 import TimesSection from "./components/TimesSection.vue";
+import { onMounted } from "vue";
+import { useTimesStore } from "./store/timesStore";
+
+const store = useTimesStore()
+
+onMounted(() => {
+	store.loadSolves()
+	store.loadDarkMode()
+})
 </script>
 
 <template>

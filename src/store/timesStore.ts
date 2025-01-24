@@ -12,12 +12,14 @@ export const useTimesStore = defineStore("times", {
 		solves: [] as Solve[],
 		currentTime: 0,
 		isRunning: false,
+		//Inspeccion
 		inspeccionMode: false,
-		inspeccionTime: 15,
-		currentInspeccionTime: 0,
+		inspeccionTime: 5,
+		currentInspeccionTime: null as number | null,
+		isPaused: false,
 
-		needToHold: true,
 		//Hold
+		needToHold: false,
 		isHolding: false,
 		holdStartTime: null as number | null,
 		isReady: false,
@@ -26,27 +28,58 @@ export const useTimesStore = defineStore("times", {
 		darkMode: true,
 	}),
 	actions: {
-		//Agregar nuevo solve
-		addSolve(solve: Solve) {
-			this.solves.unshift(solve);
+		//Logica de guardar en localstorage ---------------------------------------
+		saveSolves() {
+			localStorage.setItem("solves", JSON.stringify(this.solves));
 		},
 
-		//logica de inspeccion
+		loadSolves() {
+			const solves = localStorage.getItem("solves");
+			if (solves) {
+				this.solves = JSON.parse(solves);
+			}
+		},
+		//Logica de solves ---------------------------------------------------------
+		addSolve(solve: Solve) {
+			this.solves.unshift(solve);
+			this.saveSolves();
+		},
+
+		deleteSolve(index: number) {
+			this.solves.splice(index, 1);
+			this.saveSolves()
+		},
+
+		clearSolves() {
+			this.solves.splice(0);
+			localStorage.removeItem("solves");
+		},
+
+		//Logica de inspeccion ---------------------------------------------------------
 		startInspeccion() {
-			// this.inspeccionMode = true;
 			this.currentInspeccionTime = this.inspeccionTime;
 			const interval = setInterval(() => {
-				if (this.currentInspeccionTime > 1) {
-					this.currentInspeccionTime -= 1;
+				if (this.currentInspeccionTime! > 1) {
+					this.currentInspeccionTime!--;
 				} else {
-					clearInterval(interval);
-					// this.inspeccionMode = false;
-					this.currentInspeccionTime = 0;
 					this.startTimer();
+					clearInterval(interval);
+					this.currentInspeccionTime = null;
 				}
 			}, 1000);
 		},
 
+		stopInspeccion() {
+			if (this.currentInspeccionTime !== null) {
+				this.currentInspeccionTime = null;
+				this.isPaused = true;
+				setTimeout(() => {
+					this.isPaused = false;
+				}, 500);
+			}
+		},
+
+		// Logica de mantener pulsado ---------------------------------------------
 		startHold() {
 			this.isHolding = true;
 			this.holdStartTime = Date.now();
@@ -66,9 +99,7 @@ export const useTimesStore = defineStore("times", {
 				}
 				console.log(elapsed);
 			}, 100);
-
 		},
-
 		resetHold() {
 			if (!this.isReady) {
 				this.holdStartTime = null;
@@ -77,12 +108,9 @@ export const useTimesStore = defineStore("times", {
 			this.isReady = false;
 		},
 
-		resetInspectionTime() {
-			this.currentInspeccionTime = this.inspeccionTime;
-		},
-
+		// Logica de iniciar y detener el timer  ---------------------------------------------
 		startTimer() {
-			if (!this.isRunning) {
+			if (!this.isRunning && !this.isPaused) {
 				this.isRunning = true;
 				this.currentTime = 0;
 				const startTime = performance.now();
@@ -97,15 +125,25 @@ export const useTimesStore = defineStore("times", {
 				}, 10);
 			}
 		},
-
 		stopTimer() {
 			if (this.isRunning) {
 				this.isRunning = false;
 			}
 		},
 
-		clearSolves() {
-			this.solves = [];
+		//Persistencia de darkmode---------------------------------------------
+		saveDarkMode() {
+			localStorage.setItem("darkMode", JSON.stringify(this.darkMode));
+		},
+
+		loadDarkMode() {
+			const storedDarkMode = localStorage.getItem("darkMode");
+			this.darkMode = storedDarkMode ? JSON.parse(storedDarkMode) : true; // Default: true
+		},
+	},
+	getters: {
+		getSolves(): Solve[] {
+			return this.solves;
 		},
 	},
 });
