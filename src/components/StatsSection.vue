@@ -102,7 +102,7 @@ const bestTime = computed(() => {
 	if (validTimes.length === 0) return "-";
 
 	const best = Math.min(...validTimes);
-	return best.toFixed(2);
+	return best.toFixed(2); 
 });
 
 const worstTime = computed(() => {

@@ -24,12 +24,14 @@
 				class="p-2 text-xs"
 				v-for="(solve, index) in store.solves"
 				:key="index"
+				
 			>
-				<div
-					class="grid grid-cols-[1fr_2fr_1fr] justify-between items-center w-full border-b border-vulcan-400 dark:border-vulcan-800 py-1"
-				>
+			<div
+			class="grid grid-cols-[1fr_2fr_1fr] justify-between items-center w-full border-b border-vulcan-400 dark:border-vulcan-800 py-1 rounded-sm"
+			:class="{ 'bg-green-500 dark:bg-green-800' : index === bestIndex, 'bg-red-600 dark:bg-red-900' : index === worstIndex }"
+					>
 					<!-- Tiempo -->
-					<p class="md:text-sm">
+					<p class="md:text-sm px-2">
 						<span class="font-bold mr-1 text-xs"
 							>{{ index + 1 }}.</span
 						>
@@ -79,16 +81,28 @@ import { useTimesStore } from "../store/timesStore";
 import { Trash, EyeClosed, Eye } from "lucide-vue-next";
 
 const store = useTimesStore();
-const solves = store.solves;
+const solves = computed(() => store.getSolves);
 const scrambleVisible = ref<boolean>(true);
+
+const bestIndex = computed(() => {
+	const times = solves.value.map((solve) => solve.time)
+	const bestTime = times.indexOf(Math.min(...times));
+	return bestTime
+});
+
+const worstIndex = computed(() => {
+	const times = solves.value.map((solve) => solve.time)
+	const worstTime = times.indexOf(Math.max(...times));
+	return worstTime
+});
 
 const toggleScramble = () => {
 	scrambleVisible.value = !scrambleVisible.value;
 };
 
 const addPenalty = (index: number) => {
-	if (solves[index].isDnf) return;
-	const solve = solves[index];
+	if (solves.value[index].isDnf) return;
+	const solve = solves.value[index];
 	solve.penalty = !solve.penalty;
 
 	if (solve.penalty) {
@@ -99,11 +113,9 @@ const addPenalty = (index: number) => {
 };
 
 const addDNF = (index: number) => {
-	const solve = solves[index];
+	const solve = solves.value[index];
 	solve.isDnf = !solve.isDnf;
 };
-
-
 
 const solveLength = computed(() => {
 	return store.solves.length
