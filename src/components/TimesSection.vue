@@ -77,10 +77,10 @@
 
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { useTimesStore } from "../store/timesStore";
 import { Trash, EyeClosed, Eye } from "lucide-vue-next";
+import { useSolvesStore } from "../store/solvesStore";
 
-const store = useTimesStore();
+const store = useSolvesStore()	
 const solves = computed(() => store.getSolves);
 const scrambleVisible = ref<boolean>(true);
 

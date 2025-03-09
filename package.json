@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@headlessui/vue": "^1.7.23",
+    "cubing": "^0.54.3",
     "lucide-vue-next": "^0.471.0",
     "pinia": "^2.3.0",
     "vue": "^3.5.13"

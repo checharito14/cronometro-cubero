@@ -7,11 +7,13 @@ import TimerDisplay from "./components/TimerDisplay.vue";
 import TimesSection from "./components/TimesSection.vue";
 import { onMounted } from "vue";
 import { useTimesStore } from "./store/timesStore";
+import { useSolvesStore } from "./store/solvesStore";
 
 const store = useTimesStore()
+const solvesStore = useSolvesStore()
 
 onMounted(() => {
-	store.loadSolves()
+	solvesStore.loadSolves()
 	store.loadDarkMode()
 })
 </script>

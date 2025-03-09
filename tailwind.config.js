@@ -27,7 +27,7 @@ export default {
                 xxl: "8rem",
             },
             fontFamily: {
-                sans: ["Agdasima", "sans-serif"],
+                sans: ["Outfit","Agdasima", "sans-serif"],
                 vietnam: ["Be Vietnam Pro", "sans-serif"],
             },
         },

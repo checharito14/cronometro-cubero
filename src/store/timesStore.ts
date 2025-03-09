@@ -1,15 +1,7 @@
 import { defineStore } from "pinia";
 
-export interface Solve {
-	scramble: string;
-	time: number;
-	penalty: boolean;
-	isDnf: boolean;
-}
-
 export const useTimesStore = defineStore("times", {
 	state: () => ({
-		solves: [] as Solve[],
 		currentTime: 0,
 		isRunning: false,
 		//Inspeccion
@@ -28,33 +20,6 @@ export const useTimesStore = defineStore("times", {
 		darkMode: true,
 	}),
 	actions: {
-		//Logica de guardar en localstorage ---------------------------------------
-		saveSolves() {
-			localStorage.setItem("solves", JSON.stringify(this.solves));
-		},
-
-		loadSolves() {
-			const solves = localStorage.getItem("solves");
-			if (solves) {
-				this.solves = JSON.parse(solves);
-			}
-		},
-		//Logica de solves ---------------------------------------------------------
-		addSolve(solve: Solve) {
-			this.solves.unshift(solve);
-			this.saveSolves();
-		},
-
-		deleteSolve(index: number) {
-			this.solves.splice(index, 1);
-			this.saveSolves()
-		},
-
-		clearSolves() {
-			this.solves.splice(0);
-			localStorage.removeItem("solves");
-		},
-
 		//Logica de inspeccion ---------------------------------------------------------
 		startInspeccion() {
 			this.currentInspeccionTime = this.inspeccionTime;
@@ -131,6 +96,7 @@ export const useTimesStore = defineStore("times", {
 			}
 		},
 
+	
 		//Persistencia de darkmode---------------------------------------------
 		saveDarkMode() {
 			localStorage.setItem("darkMode", JSON.stringify(this.darkMode));
@@ -141,9 +107,5 @@ export const useTimesStore = defineStore("times", {
 			this.darkMode = storedDarkMode ? JSON.parse(storedDarkMode) : true; // Default: true
 		},
 	},
-	getters: {
-		getSolves(): Solve[] {
-			return this.solves;
-		},
-	},
+
 });

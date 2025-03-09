@@ -64,98 +64,33 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
-import { useTimesStore } from "../store/timesStore";
+import { computed } from "vue";
+import { useAvgStore } from "../store/avgStore";
 
-const store = useTimesStore();
-const solves = computed(() => store.getSolves);
-console.log(solves)
+const avgStore = useAvgStore();
+
 const averages = computed(() => [
 	{
 		label: "Avg3",
-		actual: calculateAvg(3),
-		best: bestAvg.value[3]?.toFixed(2) ?? "-",
+		actual: avgStore.calculateAvg(3),
+		best: avgStore.calculateBestAvg(3)
 	},
 	{
 		label: "Avg5",
-		actual: calculateAvg(5),
-		best: bestAvg.value[5]?.toFixed(2) ?? "-",
+		actual: avgStore.calculateAvg(5),
+		best: avgStore.calculateBestAvg(5),
 	},
 	{
 		label: "Avg12",
-		actual: calculateAvg(12),
-		best: bestAvg.value[12]?.toFixed(2) ?? "-",
+		actual: avgStore.calculateAvg(12),
+		best: avgStore.calculateBestAvg(12),
 	},
 ]);
 
-const bestAvg = ref<{ [key: number]: number | null }>({
-	3: null as number | null,
-	5: null as number | null,
-	12: null as number | null,
-});
+const bestTime = computed(() => avgStore.getBestTime());
 
-const bestTime = computed(() => {
-	if (solves.value.length === 0) return "-";
-	const validTimes = solves.value
-		.filter((solve) => !solve.isDnf)
-		.map((solve) => solve.time);
-	if (validTimes.length === 0) return "-";
+const worstTime = computed(() => avgStore.getWorstTime());
 
-	const best = Math.min(...validTimes);
-	return best.toFixed(2); 
-});
+const promedioTime = computed(() => avgStore.getPromedioTime());
 
-const worstTime = computed(() => {
-	if (solves.value.length === 0) return "-";
-	const validTimes = solves.value
-		.filter((solve) => !solve.isDnf)
-		.map((solve) => solve.time);
-	if (validTimes.length === 0) return "-";
-
-	const worst = Math.max(...validTimes);
-
-	return worst.toFixed(2);
-});
-
-const promedioTime = computed(() => {
-	if (solves.value.length === 0) return "-";
-	const validTimes = solves.value
-		.filter((solve) => !solve.isDnf)
-		.map((solve) => solve.time);
-	if (validTimes.length === 0) return "-";
-
-	const total = validTimes.reduce((sum, time) => sum + time, 0);
-	const avg = total / solves.value.length;
-
-	return avg.toFixed(2);
-});
-
-const calculateAvg = (count: number): string => {
-	if (solves.value.length < count) return "-";
-
-	const invalidTimes = solves.value.slice(0, count).filter((solve) => solve.isDnf);
-
-	if (count === 3) {
-		if (invalidTimes.length > 0) return "DNF";
-	} else if (count === 5) {
-		if (invalidTimes.length > 1) return "DNF";
-	} else if (count === 12) {
-		if (invalidTimes.length > 2) return "DNF";
-	}
-
-	const lastSolves = solves.value.slice(0, count);
-
-	const dnfCount = lastSolves.filter((solve) => solve.isDnf).length;
-	if (dnfCount > count - 1) return "DNF";
-
-	const times = lastSolves.map((solve) => (solve.time));
-
-	times.sort((a, b) => a - b);
-
-	const timeToAvg = count > 3 ? times.slice(1, count - 1) : times;
-
-	const total = timeToAvg.reduce((sum, time) => sum + time, 0);
-	const currentAvg = total / timeToAvg.length;
-	return currentAvg.toFixed(2);
-};
 </script>

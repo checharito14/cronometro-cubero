@@ -8,30 +8,30 @@
 			{{ scramble }}
 		</div>
 		<div
-			class="text-8xl flex justify-around items-center font-sans tracking-widest text-center w-[80%] md:text-9xl"
+			class="text-8xl flex justify-around items-center font-bold font-sans tracking-widest w-[80%] md:text-9xl border-red-500"
 		>
 			<img
-				src="../../src/assets/manos.svg"
+				src="../../src/assets/icono_mano_izquierda.svg"
 				alt="manos"
-				class="w-32 h-32"
+				class="w-48 h-48 hidden lg:block"
 			/>
 			<div
-				class="w-64"
 				:class="{
 					'text-red-500': holdState === 'red',
 					'text-green-500': holdState === 'green',
 				}"
 			>
-				<h1>
+				<h1 class="">
 					{{ displayTime }}
 				</h1>
 			</div>
 			<img
-				src="../../src/assets/manos.svg"
+				src="../../src/assets/icono_mano.svg"
 				alt="manos"
-				class="w-32 h-32"
+				class="w-48 h-48 hidden lg:block"
 			/>
 		</div>
+
 		<p class="text-sm py-2 text-gray-700 dark:text-gris md:text-base">
 			{{
 				isRunning
@@ -44,31 +44,34 @@
 
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from "vue";
+import {randomScrambleForEvent} from "cubing/scramble"
 import { useTimesStore } from "../store/timesStore";
+import { useSolvesStore } from "../store/solvesStore";
 
-const store = useTimesStore();
+const timesStore = useTimesStore();
+const solvesStore = useSolvesStore();
 
 //Computed --------------------------------------------------
-const isRunning = computed(() => store.isRunning);
+const isRunning = computed(() => timesStore.isRunning);
 const holdState = computed(() => {
-	if (store.isReady) return "green";
-	if (store.isHolding) return "red";
+	if (timesStore.isReady) return "green";
+	if (timesStore.isHolding) return "red";
 	return "";
 });
 
 const displayTime = computed(() => {
-	if (store.currentInspeccionTime) {
-		return `${store.currentInspeccionTime}`;
+	if (timesStore.currentInspeccionTime) {
+		return `${timesStore.currentInspeccionTime}`;
 	} else {
-		const minutes = String(Math.floor(store.currentTime / 60000)).padStart(
+		const minutes = String(Math.floor(timesStore.currentTime / 60000)).padStart(
 			2,
 			"0"
 		);
 		const seconds = String(
-			Math.floor((store.currentTime % 60000) / 1000)
+			Math.floor((timesStore.currentTime % 60000) / 1000)
 		).padStart(2, "0");
 		const milliseconds = String(
-			Math.floor((store.currentTime % 1000) / 10)
+			Math.floor((timesStore.currentTime % 1000) / 10)
 		).padStart(2, "0");
 
 		if (minutes !== "00") {
@@ -81,93 +84,77 @@ const displayTime = computed(() => {
 
 //Metodos --------------------------------------------------
 const startTimer = () => {
-	store.startTimer();
-	store.resetHold();
+	timesStore.startTimer();
+	timesStore.resetHold();
 };
 
 //Manejo de eventos --------------------------------------------------
 const handleKeyUp = (event: KeyboardEvent) => {
 	if (event.code === "Space") {
-		event.preventDefault();  
-		if (store.isReady) {
+		event.preventDefault();
+		if (timesStore.isReady) {
 			startTimer();
 		}
-		store.resetHold();
+		timesStore.resetHold();
 	}
 };
 
 const handleKeyDown = (event: KeyboardEvent) => {
-	if(event.code === 'Space') {
-		event.preventDefault()
-	}
-	if (store.isPaused) return;
-	//Si el cronometro esta corriendo se detiene
-	if (store.isRunning) {
+	if (event.code === "Space") {
 		event.preventDefault();
-		store.stopTimer();
-		store.addSolve({
+	}
+	if (timesStore.isPaused) return;
+	//Si el cronometro esta corriendo se detiene
+	if (timesStore.isRunning) {
+		event.preventDefault();
+		timesStore.stopTimer();
+		solvesStore.addSolve({
 			scramble: scramble.value,
-			time: parseFloat((store.currentTime / 1000).toFixed(2)),
+			time: parseFloat((timesStore.currentTime / 1000).toFixed(2)),
 			isDnf: false,
 			penalty: false,
 		});
-		scramble.value = scrambleGenerator();
+		generateScramble();
 		return;
 	}
-	if (store.inspeccionMode && store.currentInspeccionTime !== null) {
-			store.stopInspeccion();
-			return;
-		}
-	
-	if (event.code === "Space" && !store.isRunning && !store.isHolding) {
+	if (timesStore.inspeccionMode && timesStore.currentInspeccionTime !== null) {
+		timesStore.stopInspeccion();
+		return;
+	}
+
+	if (event.code === "Space" && !timesStore.isRunning && !timesStore.isHolding) {
 		event.preventDefault();
-		if (store.inspeccionMode) {
-			store.startInspeccion();
-		} else if (store.needToHold) {
-			store.startHold();
+		if (timesStore.inspeccionMode) {
+			timesStore.startInspeccion();
+		} else if (timesStore.needToHold) {
+			timesStore.startHold();
 		} else {
-			store.startTimer();
+			timesStore.startTimer();
 		}
 	}
 };
 
 const handleMousePress = () => {
-	if (store.isRunning) {
-		store.stopTimer();
+	if (timesStore.isRunning) {
+		timesStore.stopTimer();
 	}
 };
 
 //Scramble Generation --------------------------------------------------
 const scramble = ref("");
 
-const scrambleGenerator = (): string => {
-	const movements = ["F", "U", "D", "R", "L", "B"];
-	const modifiers = ["", "'", "2"];
-	let previousMove = ""; // Para rastrear el último movimiento generado
-
-	return Array.from({ length: 20 })
-		.map(() => {
-			let newMove;
-			do {
-				// Genera un nuevo movimiento aleatorio
-				newMove =
-					movements[Math.floor(Math.random() * movements.length)] +
-					modifiers[Math.floor(Math.random() * modifiers.length)];
-			} while (newMove[0] === previousMove[0]); // Evita movimientos consecutivos iguales
-
-			previousMove = newMove[0]; // Actualiza el último movimiento
-			return newMove;
-		})
-		.join(" ");
+const generateScramble = async () => {
+  const result = await randomScrambleForEvent('333');
+  scramble.value = result.toString();
 };
-
 
 //Lyfecicle hooks ---------------------------------------------------
 onMounted(() => {
 	window.addEventListener("keydown", handleKeyDown);
 	window.addEventListener("keyup", handleKeyUp);
 	window.addEventListener("mousedown", handleMousePress);
-	scramble.value = scrambleGenerator();
+	generateScramble();
+	
 });
 
 onUnmounted(() => {

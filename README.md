@@ -1,5 +1,15 @@
-# Vue 3 + TypeScript + Vite
 
-This template should help get you started developing with Vue 3 and TypeScript in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+# Lista de Tareas del Proyecto
 
-Learn more about the recommended Project Setup and IDE Support in the [Vue Docs TypeScript Guide](https://vuejs.org/guide/typescript/overview.html#project-setup).
+## Funcionalidades por Implementar
+
+-[] **Interfaz de usuario**: Implementar funcionalidad para poder ver el diagrama de el cubo sobre como deberia quedar tras el scramble
+
+-[ ] **API de scramble**: Implementar la api de generador de scrambles
+
+## Funcionalidades en Progreso
+
+## Funcionalidades Completadas
+
+
+-[X] **Guardar mejor tiempo**: Implementar la funcionalidad para almacenar y mostrar el mejor tiempo historico de el usuario

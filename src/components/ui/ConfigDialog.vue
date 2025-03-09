@@ -54,9 +54,9 @@
 											iniciar</SwitchLabel
 										>
 										<Switch
-											v-model="store.needToHold"
+											v-model="timesStore.needToHold"
 											:class="
-												store.needToHold
+												timesStore.needToHold
 													? 'bg-blue-600'
 													: 'bg-[#dcdde1]'
 											"
@@ -64,7 +64,7 @@
 										>
 											<span
 												:class="
-													store.needToHold
+													timesStore.needToHold
 														? 'translate-x-6'
 														: 'translate-x-1'
 												"
@@ -86,12 +86,12 @@
 												>Claro</SwitchLabel
 											>
 											<Switch
-												v-model="store.darkMode"
+												v-model="timesStore.darkMode"
 												@update:modelValue="
-													store.saveDarkMode
+													timesStore.saveDarkMode
 												"
 												:class="
-													store.darkMode
+													timesStore.darkMode
 														? 'bg-blue-600'
 														: 'bg-[#dcdde1]'
 												"
@@ -99,7 +99,7 @@
 											>
 												<span
 													:class="
-														store.darkMode
+														timesStore.darkMode
 															? 'translate-x-6'
 															: 'translate-x-1'
 													"
@@ -170,6 +170,7 @@
 import { ref, watchEffect } from "vue";
 import { Switch, SwitchGroup, SwitchLabel } from "@headlessui/vue";
 import { Bolt } from "lucide-vue-next";
+import { useSolvesStore } from "../../store/solvesStore";
 import { useTimesStore } from "../../store/timesStore";
 
 import {
@@ -180,7 +181,8 @@ import {
 	DialogTitle,
 } from "@headlessui/vue";
 
-const store = useTimesStore();
+const solvesStore = useSolvesStore();
+const timesStore = useTimesStore();
 
 const isOpen = ref(false);
 const confirmDelete = ref(false);
@@ -190,17 +192,17 @@ const handleConfirm = () => {
 };
 
 const deleteSolves = () => {
-	if (!store.solves.length) {
+	if (!solvesStore.solves.length) {
 		confirmDelete.value = false;
 		return;
 	}
-	store.clearSolves();
+	solvesStore.clearSolves();
 	confirmDelete.value = false;
 };
 
 watchEffect(() => {
 	const html = document.documentElement;
-	if (store.darkMode) {
+	if (timesStore.darkMode) {
 		html.classList.add("dark");
 	} else {
 		html.classList.remove("dark");
