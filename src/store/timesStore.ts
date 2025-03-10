@@ -16,8 +16,6 @@ export const useTimesStore = defineStore("times", {
 		holdStartTime: null as number | null,
 		isReady: false,
 		holdState: "",
-
-		darkMode: true,
 	}),
 	actions: {
 		//Logica de inspeccion ---------------------------------------------------------
@@ -97,15 +95,7 @@ export const useTimesStore = defineStore("times", {
 		},
 
 	
-		//Persistencia de darkmode---------------------------------------------
-		saveDarkMode() {
-			localStorage.setItem("darkMode", JSON.stringify(this.darkMode));
-		},
-
-		loadDarkMode() {
-			const storedDarkMode = localStorage.getItem("darkMode");
-			this.darkMode = storedDarkMode ? JSON.parse(storedDarkMode) : true; // Default: true
-		},
+	
 	},
 
 });

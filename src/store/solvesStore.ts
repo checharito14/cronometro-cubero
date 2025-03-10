@@ -1,27 +1,31 @@
 import { defineStore } from "pinia";
-import type { Solve } from "../types";
+import type { CubeCategory, Solve } from "../types";
 // import { useAvgStore } from "./avgStore";
 
 // const avgStore = useAvgStore();
 
 export const useSolvesStore = defineStore("solves", {
 	state: () => ({
-		solves: [] as Solve[],
+		categoryCube: "333" as CubeCategory,
+		solves: {
+			"222": [] as Solve[],
+			"333": [] as Solve[],
+			"444": [] as Solve[],
+		},
 	}),
 	actions: {
 		addSolve(solve: Solve) {
-			this.solves.unshift(solve);
+			this.solves[this.categoryCube].unshift(solve);
 			this.saveSolves();
 		},
 
 		deleteSolve(index: number) {
-			this.solves.splice(index, 1);
-			
+			this.solves[this.categoryCube].splice(index, 1);
             this.saveSolves();
 		},
 
 		clearSolves() {
-			this.solves.splice(0);
+			this.solves[this.categoryCube].splice(0);
 			localStorage.removeItem("solves");
 		},
 
@@ -39,7 +43,10 @@ export const useSolvesStore = defineStore("solves", {
 	},
 	getters: {
 		getSolves(): Solve[] {
-			return this.solves;
+			return this.solves[this.categoryCube];
 		},
+		getCategoryCube(): CubeCategory {
+			return this.categoryCube;
+		}
 	},
 });

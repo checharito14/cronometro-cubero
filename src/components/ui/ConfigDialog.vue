@@ -58,7 +58,7 @@
 											:class="
 												timesStore.needToHold
 													? 'bg-blue-600'
-													: 'bg-[#dcdde1]'
+													: 'bg-[#2e2e2ecb] dark:bg-gray-700'
 											"
 											class="relative inline-flex h-5 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
 										>
@@ -86,20 +86,20 @@
 												>Claro</SwitchLabel
 											>
 											<Switch
-												v-model="timesStore.darkMode"
+												v-model="configStore.darkMode"
 												@update:modelValue="
-													timesStore.saveDarkMode
+													configStore.saveDarkMode
 												"
 												:class="
-													timesStore.darkMode
+													configStore.darkMode
 														? 'bg-blue-600'
-														: 'bg-[#dcdde1]'
+														: 'bg-[#2e2e2ecb] dark:bg-gray-700'
 												"
 												class="relative inline-flex h-5 w-11 mx-5 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
 											>
 												<span
 													:class="
-														timesStore.darkMode
+														configStore.darkMode
 															? 'translate-x-6'
 															: 'translate-x-1'
 													"
@@ -170,9 +170,6 @@
 import { ref, watchEffect } from "vue";
 import { Switch, SwitchGroup, SwitchLabel } from "@headlessui/vue";
 import { Bolt } from "lucide-vue-next";
-import { useSolvesStore } from "../../store/solvesStore";
-import { useTimesStore } from "../../store/timesStore";
-
 import {
 	TransitionRoot,
 	TransitionChild,
@@ -180,9 +177,13 @@ import {
 	DialogPanel,
 	DialogTitle,
 } from "@headlessui/vue";
+import { useSolvesStore } from "../../store/solvesStore";
+import { useConfigStore } from "../../store/configStore";
+import { useTimesStore } from "../../store/timesStore";
 
 const solvesStore = useSolvesStore();
 const timesStore = useTimesStore();
+const configStore = useConfigStore();
 
 const isOpen = ref(false);
 const confirmDelete = ref(false);
@@ -192,7 +193,7 @@ const handleConfirm = () => {
 };
 
 const deleteSolves = () => {
-	if (!solvesStore.solves.length) {
+	if (!solvesStore.getSolves.length) {
 		confirmDelete.value = false;
 		return;
 	}
@@ -202,7 +203,7 @@ const deleteSolves = () => {
 
 watchEffect(() => {
 	const html = document.documentElement;
-	if (timesStore.darkMode) {
+	if (configStore.darkMode) {
 		html.classList.add("dark");
 	} else {
 		html.classList.remove("dark");

@@ -43,8 +43,8 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from "vue";
-import {randomScrambleForEvent} from "cubing/scramble"
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
+import { randomScrambleForEvent } from "cubing/scramble";
 import { useTimesStore } from "../store/timesStore";
 import { useSolvesStore } from "../store/solvesStore";
 
@@ -63,10 +63,9 @@ const displayTime = computed(() => {
 	if (timesStore.currentInspeccionTime) {
 		return `${timesStore.currentInspeccionTime}`;
 	} else {
-		const minutes = String(Math.floor(timesStore.currentTime / 60000)).padStart(
-			2,
-			"0"
-		);
+		const minutes = String(
+			Math.floor(timesStore.currentTime / 60000)
+		).padStart(2, "0");
 		const seconds = String(
 			Math.floor((timesStore.currentTime % 60000) / 1000)
 		).padStart(2, "0");
@@ -109,6 +108,7 @@ const handleKeyDown = (event: KeyboardEvent) => {
 		event.preventDefault();
 		timesStore.stopTimer();
 		solvesStore.addSolve({
+			categoryCube: solvesStore.categoryCube,
 			scramble: scramble.value,
 			time: parseFloat((timesStore.currentTime / 1000).toFixed(2)),
 			isDnf: false,
@@ -117,12 +117,19 @@ const handleKeyDown = (event: KeyboardEvent) => {
 		generateScramble();
 		return;
 	}
-	if (timesStore.inspeccionMode && timesStore.currentInspeccionTime !== null) {
+	if (
+		timesStore.inspeccionMode &&
+		timesStore.currentInspeccionTime !== null
+	) {
 		timesStore.stopInspeccion();
 		return;
 	}
 
-	if (event.code === "Space" && !timesStore.isRunning && !timesStore.isHolding) {
+	if (
+		event.code === "Space" &&
+		!timesStore.isRunning &&
+		!timesStore.isHolding
+	) {
 		event.preventDefault();
 		if (timesStore.inspeccionMode) {
 			timesStore.startInspeccion();
@@ -144,9 +151,22 @@ const handleMousePress = () => {
 const scramble = ref("");
 
 const generateScramble = async () => {
-  const result = await randomScrambleForEvent('333');
-  scramble.value = result.toString();
+	try {
+		const selectedCategory = solvesStore.getCategoryCube;
+		const result = await randomScrambleForEvent(selectedCategory);
+		scramble.value = result.toString();
+	} catch (error) {
+		console.error("Error generando el scramble:", error);
+		scramble.value = "Error al generar el scramble, intenta de nuevo";
+	}
 };
+
+watch(
+	() => solvesStore.categoryCube, // Observa cambios en categoryCube
+	() => {
+		generateScramble(); // Genera un nuevo scramble cuando cambia la categoría
+	}
+);
 
 //Lyfecicle hooks ---------------------------------------------------
 onMounted(() => {
@@ -154,7 +174,6 @@ onMounted(() => {
 	window.addEventListener("keyup", handleKeyUp);
 	window.addEventListener("mousedown", handleMousePress);
 	generateScramble();
-	
 });
 
 onUnmounted(() => {

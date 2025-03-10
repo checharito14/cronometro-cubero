@@ -6,15 +6,15 @@ import StatsSection from "./components/StatsSection.vue";
 import TimerDisplay from "./components/TimerDisplay.vue";
 import TimesSection from "./components/TimesSection.vue";
 import { onMounted } from "vue";
-import { useTimesStore } from "./store/timesStore";
 import { useSolvesStore } from "./store/solvesStore";
+import { useConfigStore } from "./store/configStore";
 
-const store = useTimesStore()
+const configStore = useConfigStore()
 const solvesStore = useSolvesStore()
 
 onMounted(() => {
 	solvesStore.loadSolves()
-	store.loadDarkMode()
+	configStore.loadDarkMode()
 })
 </script>
 

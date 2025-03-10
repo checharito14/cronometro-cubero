@@ -22,7 +22,7 @@
 		<div class="p-6">
 			<div
 				class="p-2 text-xs"
-				v-for="(solve, index) in store.solves"
+				v-for="(solve, index) in store.getSolves"
 				:key="index"
 				
 			>
@@ -118,6 +118,6 @@ const addDNF = (index: number) => {
 };
 
 const solveLength = computed(() => {
-	return store.solves.length
+	return store.getSolves.length
 })
 </script>

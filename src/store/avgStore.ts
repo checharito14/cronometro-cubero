@@ -18,7 +18,7 @@ export const useAvgStore = defineStore("avg", {
 	actions: {
 		getBestTime() {
 			const solvesStore = useSolvesStore();
-			const solves = solvesStore.solves;
+			const solves = solvesStore.getSolves;
 			if (solves.length === 0) return "-";
 			const validTimes = solves
 				.filter((solve) => !solve.isDnf)
@@ -31,7 +31,7 @@ export const useAvgStore = defineStore("avg", {
 
 		getWorstTime() {
 			const solvesStore = useSolvesStore();
-			const solves = solvesStore.solves;
+			const solves = solvesStore.getSolves;
 			if (solves.length === 0) return "-";
 			const validTimes = solves
 				.filter((solve) => !solve.isDnf)
@@ -45,7 +45,7 @@ export const useAvgStore = defineStore("avg", {
 
 		getPromedioTime() {
 			const solvesStore = useSolvesStore();
-			const solves = solvesStore.solves;
+			const solves = solvesStore.getSolves;
 			if (solves.length === 0) return "-";
 			const validTimes = solves
 				.filter((solve) => !solve.isDnf)
@@ -60,7 +60,7 @@ export const useAvgStore = defineStore("avg", {
 
 		calculateAvg(count: number): string {
 			const solvesStore = useSolvesStore();
-			const solves = solvesStore.solves;
+			const solves = solvesStore.getSolves;
 			if (solves.length < count) return "-";
 
 			const lastSolves = solves.slice(0, count);
@@ -107,7 +107,7 @@ export const useAvgStore = defineStore("avg", {
 
 		calculateBestAvg(count: number): string | null {
 			const solvesStore = useSolvesStore();
-			const solves = solvesStore.solves;
+			const solves = solvesStore.getSolves;
 			if (solves.length < count) return "-";
 
 			const lastSolves = solves.slice(0, count);
