@@ -2,8 +2,9 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import './style.css'
 import App from './App.vue'
-import BaseCard from './components/ui/BaseCard.vue'
+
 import BaseDialog from './components/ui/ConfigDialog.vue'
+import BaseCard from './components/ui/BaseCard.vue'
 
 const pinia = createPinia()
 const app = createApp(App)
