@@ -3,31 +3,33 @@
 		class="flex flex-col mx-auto gap-4 items-center cursor-pointer max-w-[90%] mb-6 md:mb-0 md:gap-1"
 	>
 		<div
-			class="text-xl py-2 font-sans tracking-[0.1em] text-center md:text-2xl"
+			class="text-xl md:max-w-[70%] py-2 mt-2 font-sans tracking-[0.1em] text-center md:text-2xl"
 		>
 			{{ scramble }}
 		</div>
+
 		<div
-			class="text-8xl flex justify-around items-center font-bold font-sans tracking-widest w-[80%] md:text-9xl border-red-500"
+			class="text-8xl flex justify-around items-center font-bold font-sans tracking-widest w-[80%] md:text-9xl"
 		>
 			<img
 				src="../../src/assets/icono_mano_izquierda.svg"
-				alt="manos"
+				alt="icono-manos"
 				class="w-48 h-48 hidden lg:block"
 			/>
 			<div
+			    class="min-w-[200px] text-center"
 				:class="{
 					'text-red-500': holdState === 'red',
 					'text-green-500': holdState === 'green',
 				}"
 			>
-				<h1 class="">
+				<h1 class="tabular-nums">
 					{{ displayTime }}
 				</h1>
 			</div>
 			<img
 				src="../../src/assets/icono_mano.svg"
-				alt="manos"
+				alt="icono-manos"
 				class="w-48 h-48 hidden lg:block"
 			/>
 		</div>

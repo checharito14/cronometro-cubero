@@ -23,6 +23,7 @@ export const useAvgStore = defineStore("avg", {
 			const validTimes = solves
 				.filter((solve) => !solve.isDnf)
 				.map((solve) => solve.time);
+				
 			if (validTimes.length === 0) return "-";
 
 			const best = Math.min(...validTimes);
@@ -115,11 +116,6 @@ export const useAvgStore = defineStore("avg", {
 			// Separate DNF and valid solves
 			const dnfSolves = lastSolves.filter((solve) => solve.isDnf);
 			const validSolves = lastSolves.filter((solve) => !solve.isDnf);
-
-			// Check DNF conditions
-			if (count === 3 && dnfSolves.length > 0) return null;
-			if (count === 5 && dnfSolves.length > 1) return null;
-			if (count === 12 && dnfSolves.length > 2) return null;
 
 			// Sort valid times
 			const sortedTimes = validSolves
