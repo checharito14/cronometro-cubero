@@ -13,3 +13,5 @@ app.component("base-card", BaseCard)
 app.component("base-dialog", BaseDialog)
 app.use(pinia)
 app.mount('#app')
+
+
